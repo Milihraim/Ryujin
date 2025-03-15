@@ -8,6 +8,7 @@ using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Common.Utilities;
 using Ryujinx.UI.App.Common;
 using Ryujinx.UI.Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -35,9 +36,9 @@ namespace Ryujinx.Ava.UI.ViewModels
         private readonly Ryujinx.Common.Logging.XCIFileTrimmerLog _logger;
         private readonly ApplicationLibrary _applicationLibrary;
         private Optional<XCITrimmerFileModel> _processingApplication = null;
-        private AvaloniaList<XCITrimmerFileModel> _allXCIFiles = new();
-        private AvaloniaList<XCITrimmerFileModel> _selectedXCIFiles = new();
-        private AvaloniaList<XCITrimmerFileModel> _displayedXCIFiles = new();
+        private AvaloniaList<XCITrimmerFileModel> _allXCIFiles = [];
+        private AvaloniaList<XCITrimmerFileModel> _selectedXCIFiles = [];
+        private AvaloniaList<XCITrimmerFileModel> _displayedXCIFiles = [];
         private MainWindowViewModel _mainWindowViewModel;
         private CancellationTokenSource _cancellationTokenSource;
         private string _search;
@@ -264,7 +265,7 @@ namespace Ryujinx.Ava.UI.ViewModels
                 switch (_viewModel.SortingField)
                 {
                     case SortField.Name:
-                        result = x.Name.CompareTo(y.Name);
+                        result = String.Compare(x?.Name, y?.Name, StringComparison.Ordinal);
                         break;
                     case SortField.Saved:
                         result = x.PotentialSavingsB.CompareTo(y.PotentialSavingsB);
@@ -275,7 +276,7 @@ namespace Ryujinx.Ava.UI.ViewModels
                     result = -result;
 
                 if (result == 0)
-                    result = x.Path.CompareTo(y.Path);
+                    result = String.Compare(x?.Path, y?.Path, StringComparison.Ordinal);
 
                 return result;
             }

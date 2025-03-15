@@ -486,7 +486,7 @@ namespace Ryujinx.Graphics.Vulkan
                 (int keyOffset, int keySize) = FromMirrorKey(key);
                 if (!(offset + size <= keyOffset || offset >= keyOffset + keySize))
                 {
-                    toRemove ??= new List<ulong>();
+                    toRemove ??= [];
 
                     toRemove.Add(key);
                 }
@@ -640,7 +640,7 @@ namespace Ryujinx.Graphics.Vulkan
             }
         }
 
-        public unsafe void SetDataUnchecked<T>(int offset, ReadOnlySpan<T> data) where T : unmanaged
+        public void SetDataUnchecked<T>(int offset, ReadOnlySpan<T> data) where T : unmanaged
         {
             SetDataUnchecked(offset, MemoryMarshal.AsBytes(data));
         }

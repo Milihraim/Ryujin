@@ -10,7 +10,7 @@ namespace Ryujinx.Graphics.Shader.CodeGen.Spirv
 {
     using IrOperandType = IntermediateRepresentation.OperandType;
 
-    partial class CodeGenContext : Module
+    class CodeGenContext : Module
     {
         private const uint SpirvVersionMajor = 1;
         private const uint SpirvVersionMinor = 3;
@@ -49,7 +49,7 @@ namespace Ryujinx.Graphics.Shader.CodeGen.Spirv
         private class BlockState
         {
             private int _entryCount;
-            private readonly List<Instruction> _labels = new();
+            private readonly List<Instruction> _labels = [];
 
             public Instruction GetNextLabel(CodeGenContext context)
             {

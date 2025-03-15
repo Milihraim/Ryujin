@@ -20,7 +20,7 @@ namespace Ryujinx.Cpu.LightningJit.Cache
                 Size = size;
             }
 
-            public int CompareTo([AllowNull] Range other)
+            public int CompareTo(Range other)
             {
                 return Offset.CompareTo(other.Offset);
             }
@@ -35,8 +35,8 @@ namespace Ryujinx.Cpu.LightningJit.Cache
         {
             _alignedRangeAction = alignedRangeAction;
             _alignedFunctionAction = alignedFunctionAction;
-            _pendingFunctions = new();
-            _ranges = new();
+            _pendingFunctions = [];
+            _ranges = [];
         }
 
         public bool Has(ulong address)

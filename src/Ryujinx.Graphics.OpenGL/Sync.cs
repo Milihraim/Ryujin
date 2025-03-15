@@ -14,10 +14,10 @@ namespace Ryujinx.Graphics.OpenGL
             public IntPtr Handle;
         }
 
-        private ulong _firstHandle = 0;
+        private ulong _firstHandle;
         private static ClientWaitSyncFlags SyncFlags => HwCapabilities.RequiresSyncFlush ? ClientWaitSyncFlags.None : ClientWaitSyncFlags.SyncFlushCommandsBit;
 
-        private readonly List<SyncHandle> _handles = new();
+        private readonly List<SyncHandle> _handles = [];
 
         public void Create(ulong id)
         {

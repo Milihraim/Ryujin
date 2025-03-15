@@ -31,7 +31,7 @@ namespace ARMeilleure.CodeGen.RegisterAllocators
 
             public ParallelCopy()
             {
-                _copies = new List<Copy>();
+                _copies = [];
             }
 
             public void AddCopy(Register dest, Register source, OperandType type)
@@ -146,9 +146,9 @@ namespace ARMeilleure.CodeGen.RegisterAllocators
             }
         }
 
-        private Queue<Operation> _fillQueue = null;
-        private Queue<Operation> _spillQueue = null;
-        private ParallelCopy _parallelCopy = null;
+        private Queue<Operation> _fillQueue;
+        private Queue<Operation> _spillQueue;
+        private ParallelCopy _parallelCopy;
 
         public bool HasCopy { get; private set; }
 
@@ -218,7 +218,7 @@ namespace ARMeilleure.CodeGen.RegisterAllocators
 
         public Operation[] Sequence()
         {
-            List<Operation> sequence = new();
+            List<Operation> sequence = [];
 
             if (_spillQueue != null)
             {

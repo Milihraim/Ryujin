@@ -231,7 +231,7 @@ namespace Ryujinx.Ava.UI.Windows
             ViewModel.ShowContent = true;
             ViewModel.IsLoadingIndeterminate = false;
 
-            if (startFullscreen && ViewModel.WindowState != MainWindow.FullScreenWindowState)
+            if (startFullscreen && ViewModel.WindowState != FullScreenWindowState)
             {
                 ViewModel.ToggleFullscreen();
             }
@@ -243,7 +243,7 @@ namespace Ryujinx.Ava.UI.Windows
             ViewModel.ShowLoadProgress = true;
             ViewModel.IsLoadingIndeterminate = true;
 
-            if (startFullscreen && ViewModel.WindowState != MainWindow.FullScreenWindowState)
+            if (startFullscreen && ViewModel.WindowState != FullScreenWindowState)
             {
                 ViewModel.ToggleFullscreen();
             }
@@ -719,12 +719,13 @@ namespace Ryujinx.Ava.UI.Windows
 
         private void ShowNewContentAddedDialog(int numDlcAdded, int numDlcRemoved, int numUpdatesAdded, int numUpdatesRemoved)
         {
-            string[] messages = {
+            string[] messages =
+            [
                 numDlcRemoved > 0 ? string.Format(LocaleManager.Instance[LocaleKeys.AutoloadDlcRemovedMessage], numDlcRemoved): null,
                 numDlcAdded > 0 ? string.Format(LocaleManager.Instance[LocaleKeys.AutoloadDlcAddedMessage], numDlcAdded): null,
                 numUpdatesRemoved > 0 ? string.Format(LocaleManager.Instance[LocaleKeys.AutoloadUpdateRemovedMessage], numUpdatesRemoved): null,
                 numUpdatesAdded > 0 ? string.Format(LocaleManager.Instance[LocaleKeys.AutoloadUpdateAddedMessage], numUpdatesAdded) : null
-            };
+            ];
 
             string msg = String.Join("\r\n", messages);
 

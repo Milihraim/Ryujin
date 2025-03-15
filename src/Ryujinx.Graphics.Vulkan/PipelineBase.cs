@@ -127,11 +127,11 @@ namespace Ryujinx.Graphics.Vulkan
         {
             _descriptorSetUpdater.Initialize();
 
-            QuadsToTrisPattern = new IndexBufferPattern(Gd, 4, 6, 0, new[] { 0, 1, 2, 0, 2, 3 }, 4, false);
-            TriFanToTrisPattern = new IndexBufferPattern(Gd, 3, 3, 2, new[] { int.MinValue, -1, 0 }, 1, true);
+            QuadsToTrisPattern = new IndexBufferPattern(Gd, 4, 6, 0, [0, 1, 2, 0, 2, 3], 4, false);
+            TriFanToTrisPattern = new IndexBufferPattern(Gd, 3, 3, 2, [int.MinValue, -1, 0], 1, true);
         }
 
-        public unsafe void Barrier()
+        public void Barrier()
         {
             Gd.Barriers.QueueMemoryBarrier();
         }
@@ -255,7 +255,7 @@ namespace Ryujinx.Graphics.Vulkan
             Gd.Api.CmdClearAttachments(CommandBuffer, 1, &attachment, 1, &clearRect);
         }
 
-        public unsafe void CommandBufferBarrier()
+        public void CommandBufferBarrier()
         {
             Gd.Barriers.QueueCommandBufferBarrier();
         }
@@ -1348,7 +1348,7 @@ namespace Ryujinx.Graphics.Vulkan
             _descriptorSetUpdater.ForceImageDirty();
         }
 
-        public unsafe void TextureBarrier()
+        public void TextureBarrier()
         {
             Gd.Barriers.QueueTextureBarrier();
         }
@@ -1446,7 +1446,7 @@ namespace Ryujinx.Graphics.Vulkan
             _newState.SamplesCount = FramebufferParams.AttachmentSamples.Length != 0 ? FramebufferParams.AttachmentSamples[0] : 1;
         }
 
-        protected unsafe void CreateRenderPass()
+        protected void CreateRenderPass()
         {
             var hasFramebuffer = FramebufferParams != null;
 

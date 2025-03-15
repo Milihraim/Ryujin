@@ -5,6 +5,7 @@ using LibHac.FsSystem;
 using LibHac.Loader;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.RomFs;
+using LibHac.Util;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
 using Ryujinx.Common.Utilities;
@@ -18,6 +19,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using LazyFile = Ryujinx.HLE.HOS.Services.Fs.FileSystemProxy.LazyFile;
 using Path = System.IO.Path;
 
@@ -86,11 +88,11 @@ namespace Ryujinx.HLE.HOS
 
             public ModCache()
             {
-                RomfsContainers = new List<Mod<FileInfo>>();
-                ExefsContainers = new List<Mod<FileInfo>>();
-                RomfsDirs = new List<Mod<DirectoryInfo>>();
-                ExefsDirs = new List<Mod<DirectoryInfo>>();
-                Cheats = new List<Cheat>();
+                RomfsContainers = [];
+                ExefsContainers = [];
+                RomfsDirs = [];
+                ExefsDirs = [];
+                Cheats = [];
             }
         }
 
@@ -105,9 +107,9 @@ namespace Ryujinx.HLE.HOS
 
             public PatchCache()
             {
-                NsoPatches = new List<Mod<DirectoryInfo>>();
-                NroPatches = new List<Mod<DirectoryInfo>>();
-                KipPatches = new List<Mod<DirectoryInfo>>();
+                NsoPatches = [];
+                NroPatches = [];
+                KipPatches = [];
 
                 Initialized = false;
             }
@@ -298,7 +300,7 @@ namespace Ryujinx.HLE.HOS
             AddModsFromDirectory(mods, applicationDir, modMetadata);
         }
 
-        public static void QueryContentsDir(ModCache mods, DirectoryInfo contentsDir, ulong applicationId)
+        public static void QueryContentsDir(ModCache mods, DirectoryInfo contentsDir, ulong applicationId, ulong[] installedDlcs)
         {
             if (!contentsDir.Exists)
             {
@@ -312,6 +314,16 @@ namespace Ryujinx.HLE.HOS
             if (applicationDir != null)
             {
                 QueryApplicationDir(mods, applicationDir, applicationId);
+            }
+
+            foreach (ulong installedDlcId in installedDlcs)
+            {
+                DirectoryInfo dlcModDir = FindApplicationDir(contentsDir, $"{installedDlcId:x16}");
+
+                if (dlcModDir != null)
+                {
+                    QueryApplicationDir(mods, dlcModDir, applicationId);
+                }
             }
         }
 
@@ -361,8 +373,8 @@ namespace Ryujinx.HLE.HOS
         private static IEnumerable<Cheat> GetCheatsInFile(FileInfo cheatFile)
         {
             string cheatName = DefaultCheatName;
-            List<string> instructions = new();
-            List<Cheat> cheats = new();
+            List<string> instructions = [];
+            List<Cheat> cheats = [];
 
             using StreamReader cheatData = cheatFile.OpenText();
             while (cheatData.ReadLine() is { } line)
@@ -389,7 +401,7 @@ namespace Ryujinx.HLE.HOS
 
                     // Start a new cheat section.
                     cheatName = line[1..^1];
-                    instructions = new List<string>();
+                    instructions = [];
                 }
                 else if (line.Length > 0)
                 {
@@ -422,7 +434,7 @@ namespace Ryujinx.HLE.HOS
                 {
                     foreach ((ulong applicationId, ModCache cache) in modCaches)
                     {
-                        QueryContentsDir(cache, searchDir, applicationId);
+                        QueryContentsDir(cache, searchDir, applicationId, []);
                     }
 
                     return true;
@@ -588,6 +600,7 @@ namespace Ryujinx.HLE.HOS
             public BitVector32 Stubs;
             public BitVector32 Replaces;
             public MetaLoader Npdm;
+            public string Hash;
 
             public bool Modified => (Stubs.Data | Replaces.Data) != 0;
         }
@@ -598,7 +611,10 @@ namespace Ryujinx.HLE.HOS
             {
                 Stubs = new BitVector32(),
                 Replaces = new BitVector32(),
+                Hash = null,
             };
+
+            string tempHash = string.Empty;
 
             if (!_appMods.TryGetValue(applicationId, out ModCache mods) || mods.ExefsDirs.Count == 0)
             {
@@ -635,8 +651,16 @@ namespace Ryujinx.HLE.HOS
 
                         modLoadResult.Replaces[1 << i] = true;
 
-                        nsos[i] = new NsoExecutable(nsoFile.OpenRead().AsStorage(), nsoName);
-                        Logger.Info?.Print(LogClass.ModLoader, $"NSO '{nsoName}' replaced");
+                        using (FileStream stream = nsoFile.OpenRead())
+                        {
+                            nsos[i] = new NsoExecutable(stream.AsStorage(), nsoName);
+                            Logger.Info?.Print(LogClass.ModLoader, $"NSO '{nsoName}' replaced");
+                            using (MD5 md5 = MD5.Create())
+                            {
+                                stream.Seek(0, SeekOrigin.Begin);
+                                tempHash += BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+                            }
+                        }
                     }
 
                     modLoadResult.Stubs[1 << i] |= File.Exists(Path.Combine(mod.Path.FullName, nsoName + StubExtension));
@@ -665,6 +689,14 @@ namespace Ryujinx.HLE.HOS
                 {
                     Logger.Info?.Print(LogClass.ModLoader, $"    NSO '{nsos[i].Name}' stubbed");
                     nsos[i] = null;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(tempHash))
+            {
+                using (MD5 md5 = MD5.Create())
+                {
+                    modLoadResult.Hash += BitConverter.ToString(md5.ComputeHash(tempHash.ToBytes())).Replace("-", "").ToLowerInvariant();
                 }
             }
 

@@ -698,8 +698,6 @@ namespace Ryujinx.HLE.FileSystem
                     {
                         throw new InvalidFirmwarePackageException("Update not found in xci file.");
                     }
-                default:
-                    break;
             }
 
             SystemVersion VerifyAndGetVersionDirectory(string firmwareDirectory)
@@ -724,9 +722,8 @@ namespace Ryujinx.HLE.FileSystem
                         {
                             updateNcasItem.Add((nca.Header.ContentType, entry.FullName));
                         }
-                        else
+                        else if (updateNcas.TryAdd(nca.Header.TitleId, new List<(NcaContentType, string)>()))
                         {
-                            updateNcas.Add(nca.Header.TitleId, new List<(NcaContentType, string)>());
                             updateNcas[nca.Header.TitleId].Add((nca.Header.ContentType, entry.FullName));
                         }
                     }
@@ -912,9 +909,8 @@ namespace Ryujinx.HLE.FileSystem
                     {
                         updateNcasItem.Add((nca.Header.ContentType, entry.FullPath));
                     }
-                    else
+                    else if (updateNcas.TryAdd(nca.Header.TitleId, new List<(NcaContentType, string)>()))
                     {
-                        updateNcas.Add(nca.Header.TitleId, new List<(NcaContentType, string)>());
                         updateNcas[nca.Header.TitleId].Add((nca.Header.ContentType, entry.FullPath));
                     }
 
@@ -1088,7 +1084,7 @@ namespace Ryujinx.HLE.FileSystem
 
         public bool AreKeysAlredyPresent(string pathToCheck)
         {
-            string[] fileNames = { "prod.keys", "title.keys", "console.keys", "dev.keys" };
+            string[] fileNames = ["prod.keys", "title.keys", "console.keys", "dev.keys"];
             foreach (var file in fileNames)
             {
                 if (File.Exists(Path.Combine(pathToCheck, file)))

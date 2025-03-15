@@ -1,5 +1,6 @@
 using Ryujinx.Common.Logging;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Ryujinx.UI.Common.Helper
 {
@@ -10,17 +11,19 @@ namespace Ryujinx.UI.Common.Helper
         public static bool? OverrideDockedMode { get; private set; }
         public static bool? OverrideHardwareAcceleration { get; private set; }
         public static string OverrideGraphicsBackend { get; private set; }
+        public static string OverrideBackendThreading { get; private set; }
         public static string OverrideHideCursor { get; private set; }
         public static string BaseDirPathArg { get; private set; }
         public static string Profile { get; private set; }
         public static string LaunchPathArg { get; private set; }
         public static string LaunchApplicationId { get; private set; }
         public static bool StartFullscreenArg { get; private set; }
+        public static string OverrideConfigFile { get; private set; }
         public static bool HideAvailableUpdates { get; private set; }
 
         public static void ParseArguments(string[] args)
         {
-            List<string> arguments = new();
+            List<string> arguments = [];
 
             // Parse Arguments.
             for (int i = 0; i < args.Length; ++i)
@@ -74,6 +77,16 @@ namespace Ryujinx.UI.Common.Helper
 
                         OverrideGraphicsBackend = args[++i];
                         break;
+                    case "--backend-threading":
+                        if (i + 1 >= args.Length)
+                        {
+                            Logger.Error?.Print(LogClass.Application, $"Invalid option '{arg}'");
+
+                            continue;
+                        }
+
+                        OverrideBackendThreading = args[++i];
+                        break;
                     case "-i":
                     case "--application-id":
                         LaunchApplicationId = args[++i];
@@ -99,6 +112,29 @@ namespace Ryujinx.UI.Common.Helper
                         break;
                     case "--software-gui":
                         OverrideHardwareAcceleration = false;
+                        break;
+                    case "-c":
+                    case "--config":
+                        if (i + 1 >= args.Length)
+                        {
+                            Logger.Error?.Print(LogClass.Application, $"Invalid option '{arg}'");
+
+                            continue;
+                        }
+
+                        string configFile = args[++i];
+
+                        if (Path.GetExtension(configFile).ToLower() != ".json")
+                        {
+                            Logger.Error?.Print(LogClass.Application, $"Invalid option '{arg}'");
+
+                            continue;
+                        }
+
+                        OverrideConfigFile = configFile;
+
+                        arguments.Add(arg);
+                        arguments.Add(args[i]);
                         break;
                     default:
                         LaunchPathArg = arg;

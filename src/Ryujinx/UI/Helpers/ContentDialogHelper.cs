@@ -148,8 +148,8 @@ namespace Ryujinx.Ava.UI.Helpers
         {
             Grid content = new()
             {
-                RowDefinitions = new RowDefinitions { new(), new() },
-                ColumnDefinitions = new ColumnDefinitions { new(GridLength.Auto), new() },
+                RowDefinitions = [new(), new()],
+                ColumnDefinitions = [new(GridLength.Auto), new()],
 
                 MinHeight = 80,
             };
@@ -159,6 +159,7 @@ namespace Ryujinx.Ava.UI.Helpers
                 Symbol = (Symbol)symbol,
                 Margin = new Thickness(10),
                 FontSize = 40,
+                FlowDirection = FlowDirection.LeftToRight,
                 VerticalAlignment = VerticalAlignment.Center,
             };
 

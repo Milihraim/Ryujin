@@ -39,9 +39,9 @@ namespace Ryujinx.HLE.HOS.Services.Ldn.UserServiceCreator.LdnRyu.Proxy
         private NatDevice _natDevice;
         private Mapping _portMapping;
 
-        private readonly List<P2pProxySession> _players = new List<P2pProxySession>();
+        private readonly List<P2pProxySession> _players = [];
 
-        private readonly List<ExternalProxyToken> _waitingTokens = new List<ExternalProxyToken>();
+        private readonly List<ExternalProxyToken> _waitingTokens = [];
         private readonly AutoResetEvent _tokenEvent = new AutoResetEvent(false);
 
         private uint _broadcastAddress;
@@ -111,7 +111,7 @@ namespace Ryujinx.HLE.HOS.Services.Ldn.UserServiceCreator.LdnRyu.Proxy
         public async Task<ushort> NatPunch()
         {
             NatDiscoverer discoverer = new NatDiscoverer();
-            CancellationTokenSource cts = new CancellationTokenSource(1000);
+            CancellationTokenSource cts = new CancellationTokenSource(2500);
 
             NatDevice device;
 

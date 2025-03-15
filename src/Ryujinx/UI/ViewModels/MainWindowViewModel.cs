@@ -6,7 +6,6 @@ using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using DynamicData;
-using DynamicData.Alias;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using Gommon;
@@ -166,7 +165,7 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public MainWindowViewModel()
         {
-            Applications = new ObservableCollectionExtended<ApplicationData>();
+            Applications = [];
 
             Applications.ToObservableChangeSet()
                 .Filter(Filter)
@@ -466,7 +465,7 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public bool OpenDeviceSaveDirectoryEnabled => !SelectedApplication.ControlHolder.ByteSpan.IsZeros() && SelectedApplication.ControlHolder.Value.DeviceSaveDataSize > 0;
 
-        public bool TrimXCIEnabled => Ryujinx.Common.Utilities.XCIFileTrimmer.CanTrim(SelectedApplication.Path, new Common.XCIFileTrimmerMainWindowLog(this));
+        public bool TrimXCIEnabled => XCIFileTrimmer.CanTrim(SelectedApplication.Path, new XCIFileTrimmerMainWindowLog(this));
 
         public bool OpenBcatSaveDirectoryEnabled => !SelectedApplication.ControlHolder.ByteSpan.IsZeros() && SelectedApplication.ControlHolder.Value.BcatDeliveryCacheStorageSize > 0;
 
@@ -1542,7 +1541,7 @@ namespace Ryujinx.Ava.UI.ViewModels
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     Application.Current.Styles.TryGetResource(args.VSyncMode,
-                        Avalonia.Application.Current.ActualThemeVariant,
+                        Application.Current.ActualThemeVariant,
                         out object color);
 
                     if (color is not null)
@@ -1678,21 +1677,21 @@ namespace Ryujinx.Ava.UI.ViewModels
                 {
                     new(LocaleManager.Instance[LocaleKeys.FileDialogAllTypes])
                     {
-                        Patterns = new[] { "*.xci", "*.zip" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.xci", "public.zip-archive" },
-                        MimeTypes = new[] { "application/x-nx-xci", "application/zip" },
+                        Patterns = ["*.xci", "*.zip"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci", "public.zip-archive"],
+                        MimeTypes = ["application/x-nx-xci", "application/zip"],
                     },
                     new("XCI")
                     {
-                        Patterns = new[] { "*.xci" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.xci" },
-                        MimeTypes = new[] { "application/x-nx-xci" },
+                        Patterns = ["*.xci"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci"],
+                        MimeTypes = ["application/x-nx-xci"],
                     },
                     new("ZIP")
                     {
-                        Patterns = new[] { "*.zip" },
-                        AppleUniformTypeIdentifiers = new[] { "public.zip-archive" },
-                        MimeTypes = new[] { "application/zip" },
+                        Patterns = ["*.zip"],
+                        AppleUniformTypeIdentifiers = ["public.zip-archive"],
+                        MimeTypes = ["application/zip"],
                     },
                 },
             });
@@ -1725,21 +1724,21 @@ namespace Ryujinx.Ava.UI.ViewModels
                 {
                     new(LocaleManager.Instance[LocaleKeys.FileDialogAllTypes])
                     {
-                        Patterns = new[] { "*.keys", "*.zip" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.xci", "public.zip-archive" },
-                        MimeTypes = new[] { "application/keys", "application/zip" },
+                        Patterns = ["*.keys", "*.zip"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci", "public.zip-archive"],
+                        MimeTypes = ["application/keys", "application/zip"],
                     },
                     new("KEYS")
                     {
-                        Patterns = new[] { "*.keys" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.xci" },
-                        MimeTypes = new[] { "application/keys" },
+                        Patterns = ["*.keys"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci"],
+                        MimeTypes = ["application/keys"],
                     },
                     new("ZIP")
                     {
-                        Patterns = new[] { "*.zip" },
-                        AppleUniformTypeIdentifiers = new[] { "public.zip-archive" },
-                        MimeTypes = new[] { "application/zip" },
+                        Patterns = ["*.zip"],
+                        AppleUniformTypeIdentifiers = ["public.zip-archive"],
+                        MimeTypes = ["application/zip"],
                     },
                 },
             });
@@ -1851,53 +1850,53 @@ namespace Ryujinx.Ava.UI.ViewModels
                 {
                     new(LocaleManager.Instance[LocaleKeys.AllSupportedFormats])
                     {
-                        Patterns = new[] { "*.nsp", "*.xci", "*.nca", "*.nro", "*.nso" },
-                        AppleUniformTypeIdentifiers = new[]
-                        {
+                        Patterns = ["*.nsp", "*.xci", "*.nca", "*.nro", "*.nso"],
+                        AppleUniformTypeIdentifiers =
+                        [
                             "com.ryujinx.nsp",
                             "com.ryujinx.xci",
                             "com.ryujinx.nca",
                             "com.ryujinx.nro",
-                            "com.ryujinx.nso",
-                        },
-                        MimeTypes = new[]
-                        {
+                            "com.ryujinx.nso"
+                        ],
+                        MimeTypes =
+                        [
                             "application/x-nx-nsp",
                             "application/x-nx-xci",
                             "application/x-nx-nca",
                             "application/x-nx-nro",
-                            "application/x-nx-nso",
-                        },
+                            "application/x-nx-nso"
+                        ],
                     },
                     new("NSP")
                     {
-                        Patterns = new[] { "*.nsp" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.nsp" },
-                        MimeTypes = new[] { "application/x-nx-nsp" },
+                        Patterns = ["*.nsp"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.nsp"],
+                        MimeTypes = ["application/x-nx-nsp"],
                     },
                     new("XCI")
                     {
-                        Patterns = new[] { "*.xci" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.xci" },
-                        MimeTypes = new[] { "application/x-nx-xci" },
+                        Patterns = ["*.xci"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci"],
+                        MimeTypes = ["application/x-nx-xci"],
                     },
                     new("NCA")
                     {
-                        Patterns = new[] { "*.nca" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.nca" },
-                        MimeTypes = new[] { "application/x-nx-nca" },
+                        Patterns = ["*.nca"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.nca"],
+                        MimeTypes = ["application/x-nx-nca"],
                     },
                     new("NRO")
                     {
-                        Patterns = new[] { "*.nro" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.nro" },
-                        MimeTypes = new[] { "application/x-nx-nro" },
+                        Patterns = ["*.nro"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.nro"],
+                        MimeTypes = ["application/x-nx-nro"],
                     },
                     new("NSO")
                     {
-                        Patterns = new[] { "*.nso" },
-                        AppleUniformTypeIdentifiers = new[] { "com.ryujinx.nso" },
-                        MimeTypes = new[] { "application/x-nx-nso" },
+                        Patterns = ["*.nso"],
+                        AppleUniformTypeIdentifiers = ["com.ryujinx.nso"],
+                        MimeTypes = ["application/x-nx-nso"],
                     },
                 },
             });
@@ -2097,38 +2096,9 @@ namespace Ryujinx.Ava.UI.ViewModels
             });
         }
 
-        public async Task OpenBinFile()
-        {
-            if (!IsAmiiboRequested)
-                return;
-
-            if (AppHost.Device.System.SearchingForAmiibo(out int deviceId))
-            {
-                var result = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-                {
-                    Title = LocaleManager.Instance[LocaleKeys.OpenFileDialogTitle],
-                    AllowMultiple = false,
-                    FileTypeFilter = new List<FilePickerFileType>
-                    {
-                        new(LocaleManager.Instance[LocaleKeys.AllSupportedFormats])
-                        {
-                            Patterns = new[] { "*.bin" },
-                        }
-                    }
-                });
-                if (result.Count > 0)
-                {
-                    AppHost.Device.System.ScanAmiiboFromBin(result[0].Path.LocalPath);
-                }
-            }
-        }
-
         public async Task OpenAmiiboWindow()
         {
-            if (!IsAmiiboRequested)
-                return;
-
-            if (AppHost.Device.System.SearchingForAmiibo(out int deviceId))
+            if (AppHost.Device.System.SearchingForAmiibo(out int deviceId) && IsGameRunning)
             {
                 string titleId = AppHost.Device.Processes.ActiveApplication.ProgramIdText.ToUpper();
                 AmiiboWindow window = new(ShowAll, LastScannedAmiiboId, titleId);
@@ -2141,6 +2111,28 @@ namespace Ryujinx.Ava.UI.ViewModels
                     LastScannedAmiiboId = window.ScannedAmiibo.GetId();
 
                     AppHost.Device.System.ScanAmiibo(deviceId, LastScannedAmiiboId, window.ViewModel.UseRandomUuid);
+                }
+            }
+        }
+        public async Task OpenBinFile()
+        {
+            if (AppHost.Device.System.SearchingForAmiibo(out _) && IsGameRunning)
+            {
+                var result = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = LocaleManager.Instance[LocaleKeys.OpenFileDialogTitle],
+                    AllowMultiple = false,
+                    FileTypeFilter = new List<FilePickerFileType>
+                    {
+                        new(LocaleManager.Instance[LocaleKeys.AllSupportedFormats])
+                        {
+                            Patterns = ["*.bin"],
+                        }
+                    }
+                });
+                if (result.Count > 0)
+                {
+                    AppHost.Device.System.ScanAmiiboFromBin(result[0].Path.LocalPath);
                 }
             }
         }
@@ -2225,7 +2217,7 @@ namespace Ryujinx.Ava.UI.ViewModels
             }
         }
 
-        public async void ProcessTrimResult(String filename, Ryujinx.Common.Utilities.XCIFileTrimmer.OperationOutcome operationOutcome)
+        public async void ProcessTrimResult(String filename, XCIFileTrimmer.OperationOutcome operationOutcome)
         {
             string notifyUser = operationOutcome.ToLocalisedText();
 
@@ -2240,8 +2232,8 @@ namespace Ryujinx.Ava.UI.ViewModels
             {
                 switch (operationOutcome)
                 {
-                    case Ryujinx.Common.Utilities.XCIFileTrimmer.OperationOutcome.Successful:
-                        if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    case XCIFileTrimmer.OperationOutcome.Successful:
+                        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                         {
                             if (desktop.MainWindow is MainWindow mainWindow)
                                 mainWindow.LoadApplications();
@@ -2258,7 +2250,7 @@ namespace Ryujinx.Ava.UI.ViewModels
                 return;
             }
 
-            var trimmer = new XCIFileTrimmer(filename, new Common.XCIFileTrimmerMainWindowLog(this));
+            var trimmer = new XCIFileTrimmer(filename, new XCIFileTrimmerMainWindowLog(this));
 
             if (trimmer.CanBeTrimmed)
             {
